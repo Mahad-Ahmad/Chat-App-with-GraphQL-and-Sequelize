@@ -1,6 +1,7 @@
 import { User } from "../models";
 import bcrypt from "bcryptjs";
 import { UserInputError } from "apollo-server";
+import  jwt  from "jsonwebtoken";
 
 const resolvers = {
   Query: {
@@ -11,6 +12,42 @@ const resolvers = {
       } catch (error) {
         console.log(error);
       }
+    },
+    login: async (_, args) => {
+      const { name, password } = args;
+      const errors = {};
+
+      if (name.trim() == "") errors.name = "name must not be empty";
+      if (password.trim() == "") errors.password = "password must not be empty";
+
+      if (Object.keys(errors).length > 0) {
+        throw new UserInputError("bad request", errors);
+      }
+
+      const user = await User.findOne({
+        where: { name },
+      });
+      if (!user) {
+        errors.user = "user not found";
+        throw new UserInputError("user not found", errors);
+      }
+
+      const checkPassword = await bcrypt.compare(password, user.password);
+      if (!checkPassword) {
+        errors.user = "password is incorrect";
+        throw new UserInputError("password is incorrect", errors);
+      }
+
+      const token = jwt.sign(
+        {
+          name,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: 60 * 60 }
+      );
+
+      user.token = token;
+      return user;
     },
   },
 

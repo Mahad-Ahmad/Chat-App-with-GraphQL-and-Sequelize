@@ -3,6 +3,7 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 import { typeDefs } from "./graphql/typedefs.js";
 import { resolvers } from "./graphql/resolvers.js";
 import { sequelize } from "./models/index.js";
+import "dotenv/config";
 
 (async () => {
   const server = new ApolloServer({

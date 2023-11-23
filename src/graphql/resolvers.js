@@ -1,6 +1,6 @@
 import { User } from "../models";
 import bcrypt from "bcryptjs";
-import { UserInputError } from "apollo-server";
+import { UserInputError, AuthenticationError } from "apollo-server";
 import  jwt  from "jsonwebtoken";
 
 const resolvers = {
@@ -35,7 +35,7 @@ const resolvers = {
       const checkPassword = await bcrypt.compare(password, user.password);
       if (!checkPassword) {
         errors.user = "password is incorrect";
-        throw new UserInputError("password is incorrect", errors);
+        throw new AuthenticationError("password is incorrect", errors);
       }
 
       const token = jwt.sign(

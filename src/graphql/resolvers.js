@@ -1,7 +1,7 @@
 import { User } from "../models";
 import bcrypt from "bcryptjs";
 import { UserInputError, AuthenticationError } from "apollo-server";
-import  jwt  from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 const resolvers = {
   Query: {
@@ -46,8 +46,12 @@ const resolvers = {
         { expiresIn: 60 * 60 }
       );
 
-      user.token = token;
-      return user;
+      return {
+        ...user.toJSON(),
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
+        token,
+      };
     },
   },
 

@@ -11,7 +11,10 @@ import "dotenv/config";
     resolvers,
   });
 
-  const { url } = await startStandaloneServer(server);
+  const { url } = await startStandaloneServer(server, {
+    context: (ctx) => ctx,
+  });
+
   console.log(`🚀 Server ready at ${url}`);
   sequelize
     .authenticate()

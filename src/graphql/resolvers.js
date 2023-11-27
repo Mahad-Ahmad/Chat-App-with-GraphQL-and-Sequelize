@@ -5,12 +5,22 @@ import jwt from "jsonwebtoken";
 
 const resolvers = {
   Query: {
-    getUsers: async () => {
+    getUsers: async (_, __, context) => {
       try {
+        let user;
+        if (context.req && context.req.headers.authorization) {
+          const token = context.req.headers.authorization.split("Bearer ")[1];
+          jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
+            if (err) {
+              throw new AuthenticationError("unauthenticated");
+            }
+            user = decodedToken;
+          });
+        }
         const users = await User.findAll();
         return users;
       } catch (error) {
-        console.log(error);
+        throw error;
       }
     },
     login: async (_, args) => {

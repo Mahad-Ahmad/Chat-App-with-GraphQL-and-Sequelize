@@ -1,6 +1,7 @@
 import { User } from "../models";
 import bcrypt from "bcryptjs";
 import { UserInputError, AuthenticationError } from "apollo-server";
+const { Op } = require("sequelize");
 import jwt from "jsonwebtoken";
 
 const resolvers = {
@@ -17,51 +18,62 @@ const resolvers = {
             user = decodedToken;
           });
         }
-        const users = await User.findAll();
+
+        const users = await User.findAll({
+          where: {
+            name: {
+              [Op.ne]: [user.name],
+            },
+          },
+        });
         return users;
       } catch (error) {
         throw error;
       }
     },
     login: async (_, args) => {
-      const { name, password } = args;
+      const { email, password } = args;
       const errors = {};
+      
+      try {
+        if (email.trim() == "") errors.email = "email must not be empty";
+        if (password.trim() == "")
+          errors.password = "password must not be empty";
 
-      if (name.trim() == "") errors.name = "name must not be empty";
-      if (password.trim() == "") errors.password = "password must not be empty";
+        if (Object.keys(errors).length > 0) {
+          throw new UserInputError("bad request", errors);
+        }
 
-      if (Object.keys(errors).length > 0) {
-        throw new UserInputError("bad request", errors);
+        const user = await User.findOne({
+          where: { email },
+        });
+        if (!user) {
+          errors.user = "user not found";
+          throw new UserInputError("user not found", errors);
+        }
+
+        const checkPassword = await bcrypt.compare(password, user.password);
+        if (!checkPassword) {
+          errors.password = "password is incorrect";
+          throw new UserInputError("password is incorrect", errors);
+        }
+
+        const token = jwt.sign(
+          {
+            email,
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: 60 * 60 }
+        );
+
+        return {
+          ...user.toJSON(),
+          updatedAt: user.updatedAt.toISOString(),
+          token,
+        };
+      } catch (err) {
+        throw new UserInputError("Bad Input", { errors });
       }
-
-      const user = await User.findOne({
-        where: { name },
-      });
-      if (!user) {
-        errors.user = "user not found";
-        throw new UserInputError("user not found", errors);
-      }
-
-      const checkPassword = await bcrypt.compare(password, user.password);
-      if (!checkPassword) {
-        errors.user = "password is incorrect";
-        throw new AuthenticationError("password is incorrect", errors);
-      }
-
-      const token = jwt.sign(
-        {
-          name,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: 60 * 60 }
-      );
-
-      return {
-        ...user.toJSON(),
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
-        token,
-      };
     },
   },
 
@@ -69,6 +81,7 @@ const resolvers = {
     register: async (_, args) => {
       let { name, email, password, confirmPassword } = args;
       const errors = {};
+      console.log(password, "confirmPassword", confirmPassword);
       try {
         // validations
         if (name.trim() == "") errors.name = "name must not be empty";
@@ -77,7 +90,7 @@ const resolvers = {
           errors.password = "password must not be empty";
         if (confirmPassword.trim() == "")
           errors.confirmPassword = "repeat password must not be empty";
-        if (password !== confirmPassword)
+        if (password != confirmPassword)
           errors.confirmPassword = "passwords must match";
 
         // check if name/email already exist

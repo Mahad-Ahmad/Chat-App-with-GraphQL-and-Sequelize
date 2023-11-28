@@ -6,11 +6,10 @@ const typeDefs = gql`
     email: String!
     token: String
     createdAt: String!
-    updatedAt: String!
   }
   type Query {
     getUsers: [User]
-    login(name: String!, password: String!): User!
+    login(email: String!, password: String!): User!
   }
   type Mutation {
     register(

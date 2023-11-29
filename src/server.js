@@ -1,8 +1,10 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { typeDefs } from "./graphql/typedefs.js";
-import { resolvers } from "./graphql/resolvers.js";
+// import  resolvers  from "./resolvers";
+const resolvers = require("./resolvers");
 import { sequelize } from "./models/index.js";
+import authMiddleware  from "./services/authMiddleware.js";
 import "dotenv/config";
 
 (async () => {
@@ -12,7 +14,7 @@ import "dotenv/config";
   });
 
   const { url } = await startStandaloneServer(server, {
-    context: (ctx) => ctx,
+    context: authMiddleware,
   });
 
   console.log(`🚀 Server ready at ${url}`);

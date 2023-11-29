@@ -1,4 +1,4 @@
-const { default: Message } = require("./MessageTypes");
-const { default: User } = require("./UserTypes");
+import Message from "./MessageTypes";
+import User from "./UserTypes";
 
 module.exports = [Message, User];

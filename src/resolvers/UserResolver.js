@@ -63,7 +63,7 @@ const login = async (args) => {
   }
 };
 
-const register = async (user) => {
+const register = async (args) => {
   let { name, email, password, confirmPassword } = args;
   const errors = {};
   console.log(password, "confirmPassword", confirmPassword);

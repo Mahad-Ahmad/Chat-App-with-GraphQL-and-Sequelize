@@ -1,10 +1,9 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
-import { typeDefs } from "./graphql/typedefs.js";
-// import  resolvers  from "./resolvers";
-const resolvers = require("./resolvers");
+import resolvers from "./resolvers";
+import typeDefs from "./typeDefs";
 import { sequelize } from "./models/index.js";
-import authMiddleware  from "./services/authMiddleware.js";
+import authMiddleware from "./services/authMiddleware.js";
 import "dotenv/config";
 
 (async () => {

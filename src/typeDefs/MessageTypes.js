@@ -6,8 +6,10 @@ const Message = gql`
     uuid: String!
     to: String!
     from: String!
+    createdAt: String!
   }
   type Query {
+    getMessages(from: String!): [Message]!
   }
   type Mutation {
     sendMessage(content: String!, to: String!): Message!

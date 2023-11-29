@@ -25,6 +25,7 @@ export const Login = () => {
   });
 
   const handleOnChange = (field, e) => {
+    setErrors({})
     setFormData((prev) => ({
       ...prev,
       [field]: e,

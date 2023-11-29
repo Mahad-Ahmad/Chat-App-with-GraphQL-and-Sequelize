@@ -59,6 +59,14 @@ const Form = ({
           />
         </div>
       )}
+      {errors.user && (
+        <div className="text-center">
+          <Label
+            errorColor={errorColor}
+            errors={errors?.user}
+          />
+        </div>
+      )}
       <div className="flex justify-center">
         <Button
           loading={loading}

@@ -5,10 +5,11 @@ const User = gql`
     name: String!
     email: String!
     token: String
-    createdAt: String!
+    # createdAt: String!
   }
   type Query {
     getUsers: [User]!
+    getUser: User!
     login(email: String!, password: String!): User!
   }
   type Mutation {

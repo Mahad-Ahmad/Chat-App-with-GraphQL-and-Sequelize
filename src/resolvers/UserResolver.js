@@ -9,13 +9,31 @@ const getUsers = async (user) => {
     const users = await User.findAll({
       where: {
         email: {
-          [Op.eq]: [user.email],
+          [Op.ne]: [user.email],
         },
       },
     });
     return users;
   } catch (error) {
     throw error;
+  }
+};
+
+const getUser = async (user) => {
+  let errors = {};
+  try {
+    const rr = await User.findOne({
+      where: { email: user.email },
+    });
+    if (!rr) {
+      errors.user = "user not found";
+      throw new UserInputError("user not found", errors);
+    }
+    return rr;
+  } catch (err) {
+    // throw err;
+    console.log(errors);
+    throw new UserInputError("Bad Input", { errors });
   }
 };
 
@@ -31,9 +49,10 @@ const login = async (args) => {
       throw new UserInputError("bad request", errors);
     }
 
-    const user = await User.findOne({
-      where: { email },
-    });
+    const user = await getUser(email);
+    // const user = await User.findOne({
+    //   where: { email },
+    // });
     if (!user) {
       errors.user = "user not found";
       throw new UserInputError("user not found", errors);
@@ -66,7 +85,6 @@ const login = async (args) => {
 const register = async (args) => {
   let { name, email, password, confirmPassword } = args;
   const errors = {};
-  console.log(password, "confirmPassword", confirmPassword);
   try {
     // validations
     if (name.trim() == "") errors.name = "name must not be empty";
@@ -120,6 +138,10 @@ const UserResolver = {
     getUsers: async (_, __, { user }) => {
       if (!user) throw new AuthenticationError("unauthenticated");
       return getUsers(user);
+    },
+    getUser: async (_, __, { user }) => {
+      if (!user) throw new AuthenticationError("unauthenticated");
+      return getUser(user);
     },
     login: async (_, args) => {
       return login(args);

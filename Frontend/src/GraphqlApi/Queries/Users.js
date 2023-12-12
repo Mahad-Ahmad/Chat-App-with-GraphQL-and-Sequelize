@@ -5,7 +5,6 @@ export const GET_USER = gql`
     getUser {
       email
       name
-      token
     }
   }
 `;

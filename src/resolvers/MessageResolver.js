@@ -24,7 +24,7 @@ const sendMessage = async ({ content, to }, user) => {
 
 const getMessages = async (from, user) => {
   try {
-    if (from == user.email) throw new Error("Please use different email");
+    if (from == user.email) throw new Error("Can't use your own email");
 
     const otherUser = await User.findOne({
       where: {

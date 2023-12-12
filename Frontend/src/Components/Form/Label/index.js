@@ -1,14 +1,12 @@
 import React from "react";
 
-const Label = ({ errors, errorColor, labelText }) => {
+const Label = ({ labelText }) => {
   return (
     <label
       htmlFor={labelText}
-      className={`block mb-2 text-sm font-medium ${
-        errors ? errorColor : "text-gray-900 dark:text-white"
-      }`}
+      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
     >
-      {errors ?? labelText}
+      {labelText}
     </label>
   );
 };

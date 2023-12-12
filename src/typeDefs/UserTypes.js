@@ -5,7 +5,7 @@ const User = gql`
     name: String!
     email: String!
     token: String
-    # createdAt: String!
+    createdAt: String!
   }
   type Query {
     getUsers: [User]!

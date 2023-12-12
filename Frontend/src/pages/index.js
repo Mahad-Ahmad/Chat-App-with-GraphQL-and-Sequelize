@@ -11,12 +11,12 @@ export default function Home() {
   //   onError: (err) => console.log(err),
   // });
 
-  const { data, loading, error } = useQuery(GET_USER, {
-    onCompleted: (data) => console.log(data),
-    onError: (err) => {
-      console.log(err.graphQLErrors[0]);
-      // setErrors(err.graphQLErrors[0].extensions.errors);
-    }
-  });
+  // const { data, loading, error } = useQuery(GET_USER, {
+  //   onCompleted: (data) => console.log(data),
+  //   onError: (err) => {
+  //     console.log(err.graphQLErrors[0]);
+  //     // setErrors(err.graphQLErrors[0].extensions.errors);
+  //   }
+  // });
   return <div>Home</div>;
 }

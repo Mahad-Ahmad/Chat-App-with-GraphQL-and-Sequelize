@@ -5,6 +5,7 @@ import { useLazyQuery } from "@apollo/client";
 import { LOGIN_USER } from "@/GraphqlApi/Queries/Login";
 import { userAtom } from "@/Store/Atoms/UserAtom";
 import Form from "../Form";
+import { toast } from 'react-toastify';
 
 export const Login = () => {
   const router = useRouter();
@@ -13,23 +14,26 @@ export const Login = () => {
     email: "",
     password: "",
   });
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');
 
   const [loginUser, { loading }] = useLazyQuery(LOGIN_USER, {
     onError: (err) => {
-      console.log(err.graphQLErrors[0].extensions.errors);
-      setErrors(err.graphQLErrors[0].extensions.errors);
+      console.log(err.message, "err");
+      toast.error(err.message)
+      setError(err.message);
     },
-    onCompleted: ({ login }) => {
-      console.log(login, 'har bar chalna chiay');
-      setUser(login);
-      localStorage.setItem("user", JSON.stringify(login));
+    onCompleted: (data) => {
+      const { login } = data;
+      localStorage.setItem("token", JSON.stringify(login.token));
+      const user = (({ token, ...rest }) => rest)(login);
+      localStorage.setItem("user", JSON.stringify(user));
+      setUser(user);
       router.push("/");
     },
   });
 
   const handleOnChange = (field, e) => {
-    setErrors({});
+    setError('');
     setFormData((prev) => ({
       ...prev,
       [field]: e,
@@ -41,15 +45,12 @@ export const Login = () => {
     loginUser({ variables: formData });
   };
 
-  const errorColor = "text-red-600";
-
   return (
     <div>
       <Form
         login
-        errors={errors}
+        error={error}
         handleOnChange={handleOnChange}
-        errorColor={errorColor}
         handleSubmit={handleSubmit}
         loading={loading}
         buttonText={"Login"}

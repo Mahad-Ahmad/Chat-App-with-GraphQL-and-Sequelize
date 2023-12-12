@@ -15,11 +15,11 @@ const httpLink = createHttpLink({
 
 const authLink = setContext((_, { headers }) => {
   const windowObject = typeof window !== "undefined";
-  const token = windowObject && JSON.parse(localStorage.getItem("user"));
+  const token = windowObject && JSON.parse(localStorage.getItem("token"));
   return {
     headers: {
       ...headers,
-      Authorization: token.token ? `Bearer ${token.token}` : "",
+      Authorization: token ? `Bearer ${token}` : "",
     },
   };
 });
@@ -38,6 +38,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 });
 
 const client = new ApolloClient({
+  // uri: process.env.APP_URI,
   // link: authLink.concat(httpLink),
   link: from([authLink, errorLink, httpLink]),
   cache: new InMemoryCache(),

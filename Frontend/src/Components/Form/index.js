@@ -5,9 +5,8 @@ import Input from "./Input";
 import Label from "./Label";
 
 const Form = ({
-  errors,
+  error,
   handleOnChange,
-  errorColor,
   handleSubmit,
   loading,
   buttonText,
@@ -16,29 +15,17 @@ const Form = ({
   return (
     <form className="max-w-sm mx-auto">
       <div className="mb-5">
-        <Label
-          errorColor={errorColor}
-          errors={errors?.email}
-          labelText={"Email Address"}
-        />
+        <Label labelText={"Email Address"} />
         <Input handleOnChange={handleOnChange} type={"email"} id={"email"} />
       </div>
       {!login && (
         <div className="mb-5">
-          <Label
-            errorColor={errorColor}
-            errors={errors?.name}
-            labelText={"Name"}
-          />
+          <Label labelText={"Name"} />
           <Input handleOnChange={handleOnChange} type={"text"} id={"name"} />
         </div>
       )}
       <div className="mb-5">
-        <Label
-          errorColor={errorColor}
-          errors={errors?.password}
-          labelText={"Your password"}
-        />
+        <Label labelText={"Your password"} />
         <Input
           handleOnChange={handleOnChange}
           type={"password"}
@@ -47,11 +34,7 @@ const Form = ({
       </div>
       {!login && (
         <div className="mb-5">
-          <Label
-            errorColor={errorColor}
-            errors={errors?.confirmPassword}
-            labelText={"Repeat password"}
-          />
+          <Label labelText={"Repeat password"} />
           <Input
             handleOnChange={handleOnChange}
             type={"password"}
@@ -59,16 +42,9 @@ const Form = ({
           />
         </div>
       )}
-      {errors.user && (
-        <div className="text-center">
-          <Label
-            errorColor={errorColor}
-            errors={errors?.user}
-          />
-        </div>
-      )}
       <div className="flex justify-center">
         <Button
+          error={error}
           loading={loading}
           buttonText={buttonText}
           handleSubmit={handleSubmit}

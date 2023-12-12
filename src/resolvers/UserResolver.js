@@ -53,10 +53,10 @@ const login = async (args) => {
       process.env.JWT_SECRET,
       { expiresIn: 60 * 60 }
     );
-
+    
     return {
       ...user.toJSON(),
-      updatedAt: user.updatedAt.toISOString(),
+      createdAt: user.createdAt.toISOString(),
       token,
     };
   } catch (err) {
@@ -92,19 +92,19 @@ const register = async (args) => {
       password,
       confirmPassword,
     });
+
     // return user
     return user;
   } catch (err) {
-    // if (err.name === "SequelizeUniqueConstraintError") {
-    //   err.errors.forEach((e) => {
-    //     errors[e.path] = `${e.path} is already taken`;
-    //   });
-    // } else if (err.name === "SequelizeValidationError") {
-    //   err.errors.forEach((e) => {
-    //     errors[e.path] = e.message;
-    //   });
-    // }
-    // throw new UserInputError("Bad Input", { errors })
+    if (err.name === "SequelizeUniqueConstraintError") {
+      err.errors.forEach((e) => {
+        throw new Error(`${e.path} is already taken`);
+      });
+    } else if (err.name === "SequelizeValidationError") {
+      err.errors.forEach((e) => {
+        throw new Error(e.message);
+      });
+    }
     throw err;
   }
 };
@@ -117,7 +117,7 @@ const UserResolver = {
     },
     getUser: async (_, __, { user }) => {
       if (!user) throw new Error("Unauthenticated");
-      return getUser(user);
+      return getUser(user.email);
     },
     login: async (_, args) => {
       return login(args);

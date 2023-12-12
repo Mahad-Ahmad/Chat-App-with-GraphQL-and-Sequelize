@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { REGISTER_USER } from "@/GraphqlApi/Mutations/register";
 import { useMutation } from "@apollo/client";
 import Form from "../Form";
+import { toast } from "react-toastify";
 
 export const Register = () => {
   const router = useRouter();
@@ -13,19 +14,20 @@ export const Register = () => {
     password: "",
     confirmPassword: "",
   });
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');
 
   const [registerUser, { loading }] = useMutation(REGISTER_USER, {
     onError: (err) => {
-      console.log(err.graphQLErrors[0].extensions.errors);
-      setErrors(err.graphQLErrors[0].extensions.errors);
+      console.log(err.message);
+      toast.error(err.message);
+      setError(err.message);
     },
     onCompleted: (data) => router.push("/login"),
     update: (cache, { data }) => console.log(data, "update"),
   });
 
   const handleOnChange = (field, e) => {
-    setErrors({})
+    setError('');
     setFormData((prev) => ({
       ...prev,
       [field]: e,
@@ -37,14 +39,11 @@ export const Register = () => {
     registerUser({ variables: formData });
   };
 
-  const errorColor = "text-red-600";
-
   return (
     <div>
       <Form
-        errors={errors}
+        error={error}
         handleOnChange={handleOnChange}
-        errorColor={errorColor}
         handleSubmit={handleSubmit}
         loading={loading}
         buttonText={"Register new account"}

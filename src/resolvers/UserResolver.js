@@ -1,6 +1,5 @@
 import { User } from "../models";
 import bcrypt from "bcryptjs";
-import { UserInputError, AuthenticationError } from "apollo-server";
 const { Op } = require("sequelize");
 import jwt from "jsonwebtoken";
 
@@ -14,54 +13,37 @@ const getUsers = async (user) => {
       },
     });
     return users;
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    throw err;
   }
 };
 
-const getUser = async (user) => {
-  let errors = {};
+const getUser = async (email) => {
   try {
-    const rr = await User.findOne({
-      where: { email: user.email },
+    const foundedUser = await User.findOne({
+      where: { email },
     });
-    if (!rr) {
-      errors.user = "user not found";
-      throw new UserInputError("user not found", errors);
+    if (!foundedUser) {
+      throw new Error("User not found");
     }
-    return rr;
+    return foundedUser;
   } catch (err) {
-    // throw err;
-    console.log(errors);
-    throw new UserInputError("Bad Input", { errors });
+    throw err;
   }
 };
 
 const login = async (args) => {
   const { email, password } = args;
-  const errors = {};
 
   try {
-    if (email.trim() == "") errors.email = "email must not be empty";
-    if (password.trim() == "") errors.password = "password must not be empty";
-
-    if (Object.keys(errors).length > 0) {
-      throw new UserInputError("bad request", errors);
-    }
+    if (email.trim() == "") throw new Error("Email must not be empty");
+    if (password.trim() == "") throw new Error("Password must not be empty");
 
     const user = await getUser(email);
-    // const user = await User.findOne({
-    //   where: { email },
-    // });
-    if (!user) {
-      errors.user = "user not found";
-      throw new UserInputError("user not found", errors);
-    }
 
     const checkPassword = await bcrypt.compare(password, user.password);
     if (!checkPassword) {
-      errors.password = "password is incorrect";
-      throw new UserInputError("password is incorrect", errors);
+      throw new Error("Password is incorrect");
     }
 
     const token = jwt.sign(
@@ -78,22 +60,20 @@ const login = async (args) => {
       token,
     };
   } catch (err) {
-    throw new UserInputError("Bad Input", { errors });
+    throw err;
   }
 };
 
 const register = async (args) => {
   let { name, email, password, confirmPassword } = args;
-  const errors = {};
   try {
     // validations
-    if (name.trim() == "") errors.name = "name must not be empty";
-    if (email.trim() == "") errors.email = "email must not be empty";
-    if (password.trim() == "") errors.password = "password must not be empty";
+    if (name.trim() == "") throw new Error("Name must not be empty");
+    if (email.trim() == "") throw new Error("Nmail must not be empty");
+    if (password.trim() == "") throw new Error("Password must not be empty");
     if (confirmPassword.trim() == "")
-      errors.confirmPassword = "repeat password must not be empty";
-    if (password != confirmPassword)
-      errors.confirmPassword = "passwords must match";
+      throw new Error("Repeat password must not be empty");
+    if (password != confirmPassword) throw new Error("Passwords must match");
 
     // check if name/email already exist
     // const userByName = await User.findOne({ where: { name } });
@@ -102,45 +82,41 @@ const register = async (args) => {
     // if (userByName) errors.name = "username is taken";
     // if (userByEmail) errors.email = "email is taken";
 
-    if (Object.keys(errors).length > 0) {
-      throw errors;
-    }
-
     // password hashing
     password = await bcrypt.hash(password, 6);
 
     // create user
-    const users = await User.create({
+    const user = await User.create({
       name,
       email,
       password,
       confirmPassword,
     });
     // return user
-    return users;
+    return user;
   } catch (err) {
-    console.log(err);
-    if (err.name === "SequelizeUniqueConstraintError") {
-      err.errors.forEach((e) => {
-        errors[e.path] = `${e.path} is already taken`;
-      });
-    } else if (err.name === "SequelizeValidationError") {
-      err.errors.forEach((e) => {
-        errors[e.path] = e.message;
-      });
-    }
-    throw new UserInputError("Bad Input", { errors });
+    // if (err.name === "SequelizeUniqueConstraintError") {
+    //   err.errors.forEach((e) => {
+    //     errors[e.path] = `${e.path} is already taken`;
+    //   });
+    // } else if (err.name === "SequelizeValidationError") {
+    //   err.errors.forEach((e) => {
+    //     errors[e.path] = e.message;
+    //   });
+    // }
+    // throw new UserInputError("Bad Input", { errors })
+    throw err;
   }
 };
 
 const UserResolver = {
   Query: {
     getUsers: async (_, __, { user }) => {
-      if (!user) throw new AuthenticationError("unauthenticated");
+      if (!user) throw new Error("Unauthenticated");
       return getUsers(user);
     },
     getUser: async (_, __, { user }) => {
-      if (!user) throw new AuthenticationError("unauthenticated");
+      if (!user) throw new Error("Unauthenticated");
       return getUser(user);
     },
     login: async (_, args) => {

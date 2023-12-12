@@ -10,6 +10,9 @@ import "dotenv/config";
   const server = new ApolloServer({
     typeDefs,
     resolvers,
+    formatError: (err) => {
+      return { error: err.extensions, message: err.message };
+    },
   });
 
   const { url } = await startStandaloneServer(server, {

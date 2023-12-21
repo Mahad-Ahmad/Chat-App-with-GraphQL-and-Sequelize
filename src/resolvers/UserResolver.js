@@ -1,17 +1,34 @@
-import { User } from "../models";
+import { Message, User } from "../models";
 import bcrypt from "bcryptjs";
 const { Op } = require("sequelize");
 import jwt from "jsonwebtoken";
 
 const getUsers = async (user) => {
   try {
-    const users = await User.findAll({
+    let users = await User.findAll({
+      attributes: ["createdAt", "name", "email", "imageUrl"],
       where: {
         email: {
           [Op.ne]: [user.email],
         },
       },
     });
+
+    const allUserMessages = await Message.findAll({
+      where: {
+        [Op.or]: [{ from: user.email }, { to: user.email }],
+      },
+      order: [["createdAt", "DESC"]],
+    });
+
+    users = users.map((otherUsers) => {
+      const latestMessage = allUserMessages.find(
+        (m) => m.from === otherUsers.email || m.to === otherUsers.email
+      );
+      otherUsers.latestMessage = latestMessage;
+      return otherUsers;
+    });
+
     return users;
   } catch (err) {
     throw err;
@@ -53,7 +70,7 @@ const login = async (args) => {
       process.env.JWT_SECRET,
       { expiresIn: 60 * 60 }
     );
-    
+
     return {
       ...user.toJSON(),
       createdAt: user.createdAt.toISOString(),

@@ -1,13 +1,14 @@
 const { gql } = require("apollo-server");
 
 const Message = gql`
-  type Message {
+   type Message {
     content: String!
     uuid: String!
     to: String!
     from: String!
     createdAt: String!
   }
+  
   type Query {
     getMessages(from: String!): [Message]!
   }

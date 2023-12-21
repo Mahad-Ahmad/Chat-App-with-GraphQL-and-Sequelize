@@ -1,19 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { userLoginSelector } from "@/Store/Selectors/UserSelector";
 import { useRecoilValue } from "recoil";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useQuery } from "@apollo/client";
+import { GET_USER } from "@/GraphqlApi/Queries/Users";
 
 const Header = () => {
-  // const router = useRouter();
-  // const user = useRecoilValue(userLoginSelector);
-  // console.log(user,'user');
-  // console.log(user, "user");
-
-  // const logout = () => {
-  //   localStorage.removeItem("user");
-  //   router.push("/login");
-  // };
+ 
   return (
     <div>
       <header>

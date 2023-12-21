@@ -19,6 +19,7 @@ import "dotenv/config";
     context: authMiddleware,
   });
 
+
   console.log(`🚀 Server ready at ${url}`);
   sequelize
     .authenticate()

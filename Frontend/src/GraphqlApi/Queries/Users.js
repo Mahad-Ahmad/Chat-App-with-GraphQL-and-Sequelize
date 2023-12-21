@@ -13,9 +13,8 @@ export const GET_USERS = gql`
   query GetUsers {
     getUsers {
       createdAt
-      email
       name
-      token
+      imageUrl
     }
   }
 `;

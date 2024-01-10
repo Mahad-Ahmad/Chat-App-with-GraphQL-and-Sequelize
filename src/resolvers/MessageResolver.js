@@ -1,5 +1,8 @@
 import { Message, User } from "../models";
 import { Op } from "sequelize";
+import { PubSub } from "graphql-subscriptions";
+
+const pubSub = new PubSub();
 
 const sendMessage = async ({ content, to }, user) => {
   try {
@@ -15,6 +18,8 @@ const sendMessage = async ({ content, to }, user) => {
       content,
       to,
     });
+
+    pubSub.publish("NEW_MESSAGE", { newMessage: message });
 
     return message;
   } catch (err) {
@@ -59,6 +64,11 @@ const MessageResolver = {
     sendMessage: (_, args, { user }) => {
       if (!user) throw new Error("Unauthenticated");
       return sendMessage(args, user);
+    },
+  },
+  Subscription: {
+    newMessage: {
+      subscribe: () => pubSub.asyncIterator(["NEW_MESSAGE"]),
     },
   },
 };

@@ -1,6 +1,6 @@
 import { Message, User } from "../models";
 import { Op } from "sequelize";
-import { PubSub } from "graphql-subscriptions";
+import { PubSub, withFilter } from "graphql-subscriptions";
 
 const pubSub = new PubSub();
 
@@ -68,7 +68,15 @@ const MessageResolver = {
   },
   Subscription: {
     newMessage: {
-      subscribe: () => pubSub.asyncIterator(["NEW_MESSAGE"]),
+      subscribe: withFilter(
+        (_, __, { user }) => {
+          if (!user) throw new Error("Unauthenticated");
+          return pubSub.asyncIterator(["NEW_MESSAGE"]);
+        },
+        (parent, ___, { user }) => {
+          console.log(parent, "payload", "user", user);
+        }
+      ),
     },
   },
 };

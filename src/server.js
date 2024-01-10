@@ -25,9 +25,10 @@ const PORT = 4000;
   console.log("Database connected!!");
 
   const schema = makeExecutableSchema({
+    introspection: true,
     typeDefs,
     resolvers,
-    context: authMiddleware,
+    csrfPrevention: true,
     formatError: (err) => {
       return { error: err.extensions, message: err.message };
     },
@@ -43,11 +44,13 @@ const PORT = 4000;
   });
 
   // Hand in the schema we just created and have the WebSocketServer start listening.
-  const serverCleanup = useServer({ schema, context: authMiddleware  }, wsServer);
+  const serverCleanup = useServer(
+    { schema, context: authMiddleware },
+    wsServer
+  );
 
   const server = new ApolloServer({
     schema,
-    context: (el)=> console.log(el), 
     plugins: [
       // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),
@@ -66,7 +69,12 @@ const PORT = 4000;
   });
 
   await server.start();
-  app.use("/graphql", cors(), bodyParser.json(), expressMiddleware(server));
+  app.use(
+    "/graphql",
+    cors(),
+    bodyParser.json(),
+    expressMiddleware(server, { context: authMiddleware })
+  );
 
   // Now that our HTTP server is fully set up, we can listen to it.
   httpServer.listen(PORT, () => {

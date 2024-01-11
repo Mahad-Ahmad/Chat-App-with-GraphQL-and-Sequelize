@@ -5,10 +5,13 @@ import {
   ApolloProvider as Provider,
   createHttpLink,
   from,
-  useQuery,
+  split,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { createClient } from "graphql-ws";
+import { getMainDefinition } from "@apollo/client/utilities";
 
 const httpLink = createHttpLink({
   uri: process.env.APP_URI,
@@ -38,10 +41,37 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   }
 });
 
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: process.env.SUBSCRIPTION_URL,
+    operation: {
+      reconnect: true,
+    },
+    connectionParams: {
+      Authorization: `Bearer ${
+        typeof window !== "undefined" &&
+        JSON.parse(localStorage.getItem("token"))
+      }`,
+    },
+  })
+);
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink,
+  from([authLink, errorLink, httpLink])
+);
+
 const client = new ApolloClient({
   // uri: process.env.APP_URI,
   // link: authLink.concat(httpLink),
-  link: from([authLink, errorLink, httpLink]),
+  link: splitLink,
   cache: new InMemoryCache(),
 });
 

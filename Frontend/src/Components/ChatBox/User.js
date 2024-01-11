@@ -1,6 +1,14 @@
 import React from "react";
 
-const User = ({ imageUrl, onChatClick, name, index, email, latestMessage }) => {
+const User = ({
+  imageUrl,
+  onChatClick,
+  name,
+  index,
+  email,
+  latestMessage,
+  bold,
+}) => {
   return (
     <>
       <button
@@ -17,12 +25,16 @@ const User = ({ imageUrl, onChatClick, name, index, email, latestMessage }) => {
           {latestMessage ? (
             <>
               <br />
-              <div className="text-xs text-center font-light text-gray-400">
+              <div
+                className={`text-xs text-start ${
+                  bold ? "font-bold text-gray-900" : "font-light text-gray-400"
+                }`}
+              >
                 {latestMessage.content}
               </div>
             </>
           ) : (
-            <div className="text-xs text-center font-light text-gray-400">
+            <div className="text-xs text-start font-light text-gray-400">
               You are connected
             </div>
           )}

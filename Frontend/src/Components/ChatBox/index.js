@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Input from "./Input";
 import Message from "./Message";
 import User from "./User";
@@ -10,8 +10,9 @@ const Chat = ({
   onChange,
   onChatClick,
   openChat,
-  messages,
+  allMessages,
   newMessage,
+  messageNotification,
 }) => {
   return (
     <div className="flex h-[90vh] antialiased text-gray-800">
@@ -39,14 +40,29 @@ const Chat = ({
           <div className="flex flex-col mt-8 overflow-hidden">
             <div className="flex flex-col -mx-2 h-full overflow-y-auto">
               {users.map((el, index) => {
+                let latestMessage, tempLatestMessage;
+                latestMessage = messageNotification.find(
+                  (msg) => msg.from == el.email
+                );
+                if (!latestMessage) {
+                  tempLatestMessage = allMessages
+                    .reverse()
+                    .find((msg) => msg.from == el.email);
+                }
+
                 return (
                   <User
                     key={index}
+                    bold={latestMessage ? true : false}
                     email={el.email}
                     imageUrl={el.imageUrl}
                     onChatClick={onChatClick}
                     name={el.name}
-                    latestMessage={el.latestMessage}
+                    latestMessage={
+                      latestMessage
+                        ? latestMessage
+                        : allMessages[allMessages.length - 1]
+                    }
                   />
                 );
               })}
@@ -58,17 +74,19 @@ const Chat = ({
             <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
               <div className="flex flex-col h-full overflow-x-auto mb-4">
                 <div className="flex flex-col h-full">
-                  {messages.map((el) => {
+                  {allMessages.map((el, index) => {
                     let otherUser = users.find((us) => el.from == us.email);
                     return (
-                      <Message
-                        imageUrl={
-                          otherUser ? otherUser?.imageUrl : user?.imageUrl
-                        }
-                        message={el.content}
-                        direction={otherUser?.email ? "left" : "right"}
-                        name={otherUser ? otherUser?.name : user?.name}
-                      />
+                      <div key={index}>
+                        <Message
+                          imageUrl={
+                            otherUser ? otherUser?.imageUrl : user?.imageUrl
+                          }
+                          message={el.content}
+                          direction={otherUser ? "left" : "right"}
+                          name={otherUser ? otherUser?.name : user?.name}
+                        />
+                      </div>
                     );
                   })}
                 </div>

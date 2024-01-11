@@ -73,8 +73,11 @@ const MessageResolver = {
           if (!user) throw new Error("Unauthenticated");
           return pubSub.asyncIterator(["NEW_MESSAGE"]);
         },
-        (parent, ___, { user }) => {
-          console.log(parent, "payload", "user", user);
+        ({ newMessage }, _, { user }) => {
+          if (newMessage.from == user.email || newMessage.to == user.email) {
+            return true;
+          }
+          return false;
         }
       ),
     },

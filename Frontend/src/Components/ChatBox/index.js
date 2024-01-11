@@ -3,11 +3,20 @@ import Input from "./Input";
 import Message from "./Message";
 import User from "./User";
 
-const Chat = ({ users, onSend, onChange, onChatClick }) => {
+const Chat = ({
+  user,
+  users,
+  onSend,
+  onChange,
+  onChatClick,
+  openChat,
+  messages,
+  newMessage,
+}) => {
   return (
     <div className="flex h-[90vh] antialiased text-gray-800">
       <div className="flex flex-row h-full w-full overflow-x-hidden">
-        <div className="flex flex-col py-8 pl-6 pr-2 w-64 bg-white flex-shrink-0">
+        <div className="flex flex-col py-8 pl-2 pr-2 w-64 bg-gray-100 flex-shrink-0 rounded-xl">
           <div className="flex flex-row items-center h-12 w-full">
             <div className="flex items-center justify-center rounded-2xl text-indigo-700 bg-indigo-100 h-10 w-10">
               <svg
@@ -28,26 +37,58 @@ const Chat = ({ users, onSend, onChange, onChatClick }) => {
             <div className="ml-2 font-bold text-2xl">QuickChat</div>
           </div>
           <div className="flex flex-col mt-8 overflow-hidden">
-            <div className="flex flex-col space-y-1 mt-4 -mx-2 h-full overflow-y-auto">
+            <div className="flex flex-col -mx-2 h-full overflow-y-auto">
               {users.map((el, index) => {
                 return (
                   <User
                     key={index}
+                    email={el.email}
                     imageUrl={el.imageUrl}
                     onChatClick={onChatClick}
                     name={el.name}
+                    latestMessage={el.latestMessage}
                   />
                 );
               })}
             </div>
           </div>
         </div>
-        <div className="flex flex-col flex-auto h-full p-6">
-          <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
-            <Message imageUrl={""} message={"hello"} left name={"Mahad"} />
-            <Input onSend={onSend} onChange={onChange} />
+        {openChat ? (
+          <div className="flex flex-col flex-auto h-full p-6">
+            <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
+              <div className="flex flex-col h-full overflow-x-auto mb-4">
+                <div className="flex flex-col h-full">
+                  {messages.map((el) => {
+                    let otherUser = users.find((us) => el.from == us.email);
+                    return (
+                      <Message
+                        imageUrl={
+                          otherUser ? otherUser?.imageUrl : user?.imageUrl
+                        }
+                        message={el.content}
+                        direction={otherUser?.email ? "left" : "right"}
+                        name={otherUser ? otherUser?.name : user?.name}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+              <Input
+                newMessage={newMessage}
+                onSend={onSend}
+                onChange={onChange}
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex flex-col flex-auto h-full p-6">
+            <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
+              <div className="relative mr-3 text-sm text-center mb-5 bg-gray-200 py-2 px-4 font-bold shadow rounded-xl">
+                <div>Chat with your friends</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

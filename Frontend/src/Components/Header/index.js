@@ -1,10 +1,7 @@
-import React, { useEffect } from "react";
-import { userLoginSelector } from "@/Store/Selectors/UserSelector";
-import { useRecoilState, useRecoilValue } from "recoil";
+import React from "react";
+import { useRecoilState } from "recoil";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useQuery } from "@apollo/client";
-import { GET_USER } from "@/GraphqlApi/Queries/Users";
 import { userAtom } from "@/Store/Atoms/UserAtom";
 
 const Header = () => {

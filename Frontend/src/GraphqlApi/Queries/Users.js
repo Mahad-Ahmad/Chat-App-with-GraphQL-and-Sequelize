@@ -15,6 +15,14 @@ export const GET_USERS = gql`
       createdAt
       name
       imageUrl
+      email
+      latestMessage {
+        createdAt
+        from
+        to
+        uuid
+        content
+      }
     }
   }
 `;

@@ -1,13 +1,23 @@
 import React, { useEffect } from "react";
 import { userLoginSelector } from "@/Store/Selectors/UserSelector";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useQuery } from "@apollo/client";
 import { GET_USER } from "@/GraphqlApi/Queries/Users";
+import { userAtom } from "@/Store/Atoms/UserAtom";
 
 const Header = () => {
- 
+  const router = useRouter()
+  const [user, setUser] = useRecoilState(userAtom);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser("");
+    router.push("/login");
+  };
+
   return (
     <div>
       <header>
@@ -30,26 +40,17 @@ const Header = () => {
               <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
                 <li>
                   <Link
-                    href="/"
-                    className="block py-2 pr-4 pl-3 cursor-pointer text-white rounded bg-primary-700 lg:bg-transparent lg:p-0 dark:text-white lg:hover:text-gray-400"
-                    aria-current="page"
-                  >
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     href="/register"
                     className="block py-2 pr-4 pl-3 cursor-pointer text-white border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-gray-400 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                   >
                     Register
                   </Link>
                 </li>
-                {/* {user && user?.name ? (
+                {user && user?.name ? (
                   <>
                     <li>
                       <a
-                        // onClick={logout}
+                        onClick={logout}
                         className="block py-2 pr-4 pl-3 cursor-pointer text-white border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-gray-400 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                       >
                         Logout
@@ -73,7 +74,7 @@ const Header = () => {
                       Login
                     </Link>
                   </li>
-                )} */}
+                )}
               </ul>
             </div>
           </div>

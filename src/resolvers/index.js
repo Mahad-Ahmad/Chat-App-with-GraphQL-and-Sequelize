@@ -4,11 +4,11 @@ import UserResolver from "./UserResolver";
 
 module.exports = merge(
   {
-    Message: {
-      createdAt: (parent) => parent.createdAt.toISOString(),
-    },
     User: {
-      createdAt: (parent) => parent.createdAt.toISOString(),
+      createdAt: (parent) => parent?.createdAt.toISOString(),
+    },
+    Message: {
+      createdAt: (parent) => parent?.createdAt.toISOString(),
     },
   },
   MessageResolver,

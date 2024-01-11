@@ -2,31 +2,41 @@ import { GET_USER } from "@/GraphqlApi/Queries/Users";
 import { userAtom } from "@/Store/Atoms/UserAtom";
 import { useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { useRecoilState } from "recoil";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { useSetRecoilState } from "recoil";
 
 // components/Layout.js
 const AuthLayout = ({ children }) => {
-  const [user, setUser] = useRecoilState(userAtom);
+  const setUser = useSetRecoilState(userAtom);
+  const [token, setToken] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setToken(token);
+  }, []);
 
   const { data, loading, error } = useQuery(GET_USER, {
     onCompleted: (data) => {
-      console.log(data);
-      // localStorage.setItem("token", JSON.stringify(login.token));
-      // const user = (({ token, ...rest }) => rest)(login);
-      // localStorage.setItem("user", JSON.stringify(user));
-      // setUser(user);
+      localStorage.setItem("user", JSON.stringify(data.getUser));
+      setUser(data.getUser);
     },
     onError: (err) => {
+      setUser("");
       router.push("/login");
-      console.log(err.graphQLErrors[0]);
+      toast.error(err.message);
+      console.log(err.message);
     },
   });
 
   useEffect(() => {
-    if (!user) router.push("/login");
-  }, [user]);
+    if (!token) {
+      router.push("/login");
+    } else {
+      router.push("/");
+    }
+  }, [token]);
 
   return (
     <div>

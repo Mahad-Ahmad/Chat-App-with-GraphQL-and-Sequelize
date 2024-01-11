@@ -73,7 +73,7 @@ const login = async (args) => {
 
     return {
       ...user.toJSON(),
-      createdAt: user.createdAt.toISOString(),
+      // createdAt: user.createdAt.toISOString(),
       token,
     };
   } catch (err) {

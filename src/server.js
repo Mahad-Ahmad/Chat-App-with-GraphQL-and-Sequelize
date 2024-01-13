@@ -6,11 +6,12 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
-import bodyParser from "body-parser";
+
 
 // Internal Imports
 import resolvers from "./resolvers";
 import typeDefs from "./typeDefs";
+import bodyParser from "body-parser";
 import { sequelize } from "./models/index.js";
 import authMiddleware from "./services/authMiddleware.js";
 import cors from "cors";

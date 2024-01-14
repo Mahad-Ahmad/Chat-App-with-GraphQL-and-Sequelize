@@ -71,7 +71,6 @@ const MessageResolver = {
     newMessage: {
       subscribe: withFilter(
         (_, __, { user }) => {
-          console.log(user, "acbsdjbskjbskdbk");
           if (!user) throw new Error("Unauthenticated");
           return pubSub.asyncIterator(["NEW_MESSAGE"]);
         },

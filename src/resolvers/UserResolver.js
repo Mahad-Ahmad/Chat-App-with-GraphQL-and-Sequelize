@@ -1,7 +1,7 @@
 import { Message, User } from "../models";
 import bcrypt from "bcryptjs";
-const { Op } = require("sequelize");
 import jwt from "jsonwebtoken";
+const { Op } = require("sequelize");
 
 const getUsers = async (user) => {
   try {

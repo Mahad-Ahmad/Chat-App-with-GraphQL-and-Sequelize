@@ -10,14 +10,8 @@ module.exports = (context) => {
   }
 
   if (token) {
-    try {
-      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-      context.user = decodedToken;
-    } catch (err) {
-      // Handle JWT verification error if needed
-      console.error("JWT verification error:", err);
-      throw new Error(err);
-    }
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    context.user = decodedToken;
   }
 
   return context;

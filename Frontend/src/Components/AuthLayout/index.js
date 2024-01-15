@@ -11,27 +11,27 @@ const AuthLayout = ({ children }) => {
   const setUser = useSetRecoilState(userAtom);
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      router.push("/");
-    } else {
-      router.push("/login");
-    }
-  }, []);
-
   const { data, loading, error } = useQuery(GET_USER, {
     onCompleted: (data) => {
       localStorage.setItem("user", JSON.stringify(data.getUser));
       setUser(data.getUser);
     },
     onError: (err) => {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
       setUser("");
       router.push("/login");
-      toast.error(err.message);
-      console.log(err.message);
     },
   });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && data) {
+      router.push("/");
+    } else {
+      router.push("/login");
+    }
+  }, [data]);
 
   return (
     <div>

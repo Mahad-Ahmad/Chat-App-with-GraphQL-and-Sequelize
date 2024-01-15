@@ -5,7 +5,6 @@ import { PubSub, withFilter } from "graphql-subscriptions";
 const pubSub = new PubSub();
 
 const sendMessage = async ({ content, to }, user) => {
-  console.log(user, "user");
   try {
     if (content.trim() === "") throw new Error("Message is empty");
 

@@ -9,12 +9,19 @@ const Message = gql`
     createdAt: String!
   }
 
-  type Query {
-    getMessages(from: String!): [Message]!
+  type MessageList {
+    allMessages: [Message]!
+    count: Int!
   }
+
+  type Query {
+    getMessages(from: String!, offset: Int, limit: Int): MessageList!
+  }
+
   type Mutation {
     sendMessage(content: String!, to: String!): Message!
   }
+  
   type Subscription {
     newMessage: Message!
   }

@@ -25,7 +25,7 @@ const User = ({
         />
         <div className="ml-3 text-start mb-2 text-sm font-semibold">
           {name}
-          {latestMessage ? (
+          {/* {latestMessage ? (
             <>
               <br />
               <div
@@ -40,7 +40,7 @@ const User = ({
             <div className="text-xs text-start font-light text-gray-400">
               You are connected
             </div>
-          )}
+          )} */}
         </div>
       </button>
     </>

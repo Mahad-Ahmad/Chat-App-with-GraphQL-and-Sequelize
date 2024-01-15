@@ -27,7 +27,8 @@ const sendMessage = async ({ content, to }, user) => {
   }
 };
 
-const getMessages = async (from, user) => {
+const getMessages = async (from, limit, offset, user) => {
+  console.log(limit, offset,'limit, offset');
   try {
     if (from == user.email) throw new Error("Can't use your own email");
 
@@ -40,14 +41,20 @@ const getMessages = async (from, user) => {
 
     const userEmails = [user.email, otherUser.email];
 
-    const messages = await Message.findAll({
+    let allMessages = await Message.findAndCountAll({
       where: {
         from: { [Op.in]: userEmails },
         to: { [Op.in]: userEmails },
       },
       order: [["createdAt", "DESC"]],
+      offset,
+      limit,
     });
-    return messages;
+
+    return {
+      allMessages: [...allMessages.rows],
+      count: allMessages.count,
+    };
   } catch (err) {
     throw err;
   }
@@ -55,9 +62,9 @@ const getMessages = async (from, user) => {
 
 const MessageResolver = {
   Query: {
-    getMessages: (_, { from }, { user }) => {
+    getMessages: (_, { from, limit, offset }, { user }) => {
       if (!user) throw new Error("Unauthenticated");
-      return getMessages(from, user);
+      return getMessages(from, limit, offset, user);
     },
   },
   Mutation: {

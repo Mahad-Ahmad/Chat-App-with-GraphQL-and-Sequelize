@@ -17,9 +17,13 @@ import { NEW_MESSAGE_SUBSCRIPTION } from "@/GraphqlApi/Subscriptions/NewMessage"
 export default function Home() {
   const user = useRecoilValue(userAtom);
   const [users, setUsers] = useState([]);
+  const [limit, setLimit] = useState(10);
+  const [offset, setOffset] = useState(0);
   const [openChat, setOpenChat] = useState("");
-  const [allMessages, setAllMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [allMessages, setAllMessages] = useState([]);
+  const [totalMessages, setTotalMessages] = useState("");
+  const [openChatHistory, setOpenChatHistory] = useState("");
   const [messageNotification, setMessageNotification] = useState([]);
 
   const { loading: usersLoading } = useQuery(GET_USERS, {
@@ -36,12 +40,15 @@ export default function Home() {
 
   const handleError = (err) => {
     setOpenChat("");
+    setOpenChatHistory("");
     console.log(err);
   };
 
   const handleMessages = (data) => {
-    setAllMessages([...data.getMessages].reverse());
-    const updatedUsers = updateUsersWithLatestMessage(data.sendMessage);
+    const { allMessages, count } = data.getMessages;
+    setTotalMessages(count);
+    setAllMessages([...allMessages].reverse());
+    const updatedUsers = updateUsersWithLatestMessage(sendMessage);
     setUsers(updatedUsers);
     const filterNotification = messageNotification.filter(
       (el) => el.to !== user.email && el.from !== openChat
@@ -117,7 +124,7 @@ export default function Home() {
     if (openChat && openChat === email) return;
     setNewMessage("");
     setAllMessages([]);
-    getMessages({ variables: { from: email } });
+    getMessages({ variables: { from: email, limit, offset } });
     setOpenChat(email);
   };
 
@@ -130,6 +137,19 @@ export default function Home() {
     });
   };
 
+  const loadMoreMessages = () => {
+    if (openChatHistory) {
+      if (openChat === openChatHistory) {
+        getMessages({
+          variables: { from: openChat, limit: limit + 10, offset: offset },
+        });
+      }
+    } else {
+      setOpenChatHistory(openChat);
+      getMessages({ variables: { from: openChat, limit:limit + 10, offset } });
+    }
+  };
+
   return (
     <>
       {messageLoading ? (
@@ -137,14 +157,16 @@ export default function Home() {
       ) : (
         <Chat
           user={user}
-          allMessages={allMessages}
-          messageNotification={messageNotification}
-          openChat={openChat}
           users={users}
           onSend={onSend}
+          openChat={openChat}
           newMessage={newMessage}
           onChange={setNewMessage}
           onChatClick={onChatClick}
+          allMessages={allMessages}
+          totalMessages={totalMessages}
+          loadMoreMessages={loadMoreMessages}
+          messageNotification={messageNotification}
         />
       )}
     </>

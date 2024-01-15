@@ -7,11 +7,13 @@ const Chat = ({
   user,
   users,
   onSend,
-  onChange,
-  onChatClick,
   openChat,
-  allMessages,
+  onChange,
   newMessage,
+  allMessages,
+  onChatClick,
+  totalMessages,
+  loadMoreMessages,
   messageNotification,
 }) => {
   const lastMessageRef = useRef(null);
@@ -71,6 +73,14 @@ const Chat = ({
           <div className="flex flex-col flex-auto h-full p-6">
             <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
               <div className="flex flex-col h-full overflow-x-auto mb-4">
+                {totalMessages > 10 && (
+                  <div
+                    onClick={loadMoreMessages}
+                    className="flex justify-center bg-gray-200 rounded-xl px-10 py-1 cursor-pointer text-gray-500 text-center"
+                  >
+                    Load more messages
+                  </div>
+                )}
                 <div className="flex flex-col h-full">
                   {allMessages.map((el, index) => {
                     let otherUser = users.find((us) => el.from == us.email);

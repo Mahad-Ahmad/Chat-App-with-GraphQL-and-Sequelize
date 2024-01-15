@@ -29,7 +29,7 @@ const PORT = 4000;
     introspection: true,
     typeDefs,
     resolvers,
-    csrfPrevention: true,
+    // csrfPrevention: true,
     formatError: (err) => {
       return { error: err.extensions, message: err.message };
     },
@@ -52,6 +52,7 @@ const PORT = 4000;
 
   const server = new ApolloServer({
     schema,
+    introspection: true,
     plugins: [
       // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),

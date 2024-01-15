@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import Input from "./Input";
 import Message from "./Message";
 import User from "./User";
@@ -14,6 +14,13 @@ const Chat = ({
   newMessage,
   messageNotification,
 }) => {
+  const lastMessageRef = useRef(null);
+
+  useEffect(() => {
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [allMessages]);
   return (
     <div className="flex h-[90vh] antialiased text-gray-800">
       <div className="flex flex-row h-full w-full overflow-x-hidden">
@@ -40,29 +47,20 @@ const Chat = ({
           <div className="flex flex-col mt-8 overflow-hidden">
             <div className="flex flex-col -mx-2 h-full overflow-y-auto">
               {users.map((el, index) => {
-                let latestMessage, tempLatestMessage;
-                latestMessage = messageNotification.find(
+                let latestMessage = messageNotification.find(
                   (msg) => msg.from == el.email
                 );
-                if (!latestMessage) {
-                  tempLatestMessage = allMessages
-                    .reverse()
-                    .find((msg) => msg.from == el.email);
-                }
 
                 return (
                   <User
+                    selectedChat={openChat == el.email ? true : false}
                     key={index}
                     bold={latestMessage ? true : false}
                     email={el.email}
                     imageUrl={el.imageUrl}
                     onChatClick={onChatClick}
                     name={el.name}
-                    latestMessage={
-                      latestMessage
-                        ? latestMessage
-                        : allMessages[allMessages.length - 1]
-                    }
+                    latestMessage={el.latestMessage}
                   />
                 );
               })}
@@ -77,7 +75,17 @@ const Chat = ({
                   {allMessages.map((el, index) => {
                     let otherUser = users.find((us) => el.from == us.email);
                     return (
-                      <div key={index}>
+                      <div
+                        ref={
+                          index === allMessages.length - 1
+                            ? lastMessageRef
+                            : null
+                        }
+                        id={
+                          index === allMessages.length - 1 ? "lastMessage" : ""
+                        }
+                        key={index}
+                      >
                         <Message
                           imageUrl={
                             otherUser ? otherUser?.imageUrl : user?.imageUrl

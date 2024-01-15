@@ -28,10 +28,10 @@ const AuthLayout = ({ children }) => {
     const token = localStorage.getItem("token");
     if (token && data) {
       router.push("/");
-    } else {
+    } else if (error || !token) {
       router.push("/login");
     }
-  }, [data]);
+  }, [data, loading, error]);
 
   return (
     <div>

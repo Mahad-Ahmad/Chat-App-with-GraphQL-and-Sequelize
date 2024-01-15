@@ -1,20 +1,23 @@
 import React from "react";
 
 const User = ({
-  imageUrl,
-  onChatClick,
   name,
+  bold,
   index,
   email,
+  imageUrl,
+  onChatClick,
+  selectedChat,
   latestMessage,
-  bold,
 }) => {
   return (
     <>
       <button
         key={index}
         onClick={() => onChatClick(email)}
-        className="flex flex-row items-center hover:bg-gray-200 rounded-3xl ml-2 my-1"
+        className={`flex flex-row items-center hover:bg-gray-200 rounded-3xl mx-2 my-1 ${
+          selectedChat ? "border-[5px]" : ''
+        }`}
       >
         <img
           src={imageUrl}

@@ -22,97 +22,105 @@ export default function Home() {
   const [newMessage, setNewMessage] = useState("");
   const [messageNotification, setMessageNotification] = useState([]);
 
-  const { loading } = useQuery(GET_USERS, {
+  const { loading: usersLoading } = useQuery(GET_USERS, {
     fetchPolicy: "network-only",
-    onCompleted: (data) => {
-      const { getUsers } = data;
-      setUsers(getUsers);
-    },
+    onCompleted: (data) => setUsers(data.getUsers),
     onError: (err) => console.log(err),
   });
 
-  const [getMessages, { messageLoading }] = useLazyQuery(GET_MESSAGES, {
-    fetchPolicy: "network-only",
-    onCompleted: (data) => {
-      setAllMessages([...data.getMessages].reverse());
-      const updatedUsers = users.map((el) => {
-        if (el.email === data?.sendMessage?.to) {
-          return { ...el, latestMessage: data?.sendMessage };
-        }
-        return el;
-      });
-      setUsers(updatedUsers);
-    },
-    onError: (err) => {
-      setOpenChat("");
-      console.log(err);
-    },
-  });
+  const {
+    data,
+    error,
+    loading: newMessageLoading,
+  } = useSubscription(NEW_MESSAGE_SUBSCRIPTION);
 
-  useEffect(() => {
+  const handleError = (err) => {
+    setOpenChat("");
+    console.log(err);
+  };
+
+  const handleMessages = (data) => {
+    setAllMessages([...data.getMessages].reverse());
+    const updatedUsers = updateUsersWithLatestMessage(data.sendMessage);
+    setUsers(updatedUsers);
     const filterNotification = messageNotification.filter(
-      (el) => el.to !== user.email
+      (el) => el.to !== user.email && el.from !== openChat
     );
     setMessageNotification(filterNotification);
-  }, [allMessages]);
+  };
 
-  console.log(messageNotification, "messageNotification");
+  const handleSendMessageError = (err) => {
+    console.log(err.message);
+    toast.error(err.message);
+  };
 
-  const { data, error, newMessageLoading } = useSubscription(
-    NEW_MESSAGE_SUBSCRIPTION
+  const handleSendMessageCompleted = (data) => {
+    if (data.sendMessage.from === user.email) {
+      setAllMessages((prev) => [...prev, data.sendMessage]);
+    }
+    const updatedUsers = updateUsersWithLatestMessage(data.sendMessage);
+    setUsers(updatedUsers);
+    setNewMessage("");
+  };
+
+  const [getMessages, { loading: messageLoading }] = useLazyQuery(
+    GET_MESSAGES,
+    {
+      fetchPolicy: "network-only",
+      onCompleted: handleMessages,
+      onError: handleError,
+    }
+  );
+
+  const [sendMessage, { loading: sendingMessageloading }] = useMutation(
+    SEND_MESSAGES,
+    {
+      fetchPolicy: "network-only",
+      onError: handleSendMessageError,
+      onCompleted: handleSendMessageCompleted,
+    }
   );
 
   useEffect(() => {
-    if (data) {
-      if (data.newMessage.from !== user.email) {
-        setMessageNotification((prev) => [...prev, data.newMessage]);
-        toast.info(`New message from ${data.newMessage.to.split("@")[0]}`);
-      }
-    } else if (loading) {
-      // toast.info("loading");
+    if (data && data.newMessage) {
+      handleNewMessage(data.newMessage);
     }
-    if (error) {
-      toast.error(error.message, {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-  }, [data, error, newMessageLoading]);
+  }, [data, newMessageLoading, error]);
 
-  const [sendMessage, { sendingMessageloading }] = useMutation(SEND_MESSAGES, {
-    fetchPolicy: "network-only",
-    onError: (err) => {
-      console.log(err.message);
-      toast.error(err.message);
-    },
-    onCompleted: (data) => {
-      setAllMessages((prev) => [...prev, data.sendMessage]);
-      const updatedUsers = users.map((el) => {
-        if (el.email === data?.sendMessage?.to) {
-          return { ...el, latestMessage: data?.sendMessage };
-        }
-        return el;
-      });
-      setUsers(updatedUsers);
-      setNewMessage("");
-    },
-  });
+  const handleNewMessage = (newMessageData) => {
+    const updatedUsers = updateUsersWithLatestMessage(newMessageData);
+    setUsers(updatedUsers);
+    if (newMessageData.from !== user.email) {
+      handleNotificationAndToast(newMessageData);
+    }
+  };
+
+  const updateUsersWithLatestMessage = (messageData) => {
+    return users.map((el) => {
+      if (el.email === messageData?.from || el.email === messageData?.to) {
+        return { ...el, latestMessage: messageData };
+      }
+      return el;
+    });
+  };
+
+  const handleNotificationAndToast = (newMessageData) => {
+    if (allMessages.length) {
+      setAllMessages((prev) => [...prev, newMessageData]);
+    } else {
+      setMessageNotification((prev) => [...prev, newMessageData]);
+    }
+    toast.info(`New message from ${newMessageData.to.split("@")[0]}`);
+  };
 
   const onChatClick = (email) => {
-    if (openChat && openChat == email) return;
+    if (openChat && openChat === email) return;
     setNewMessage("");
     setAllMessages([]);
-    getMessages({
-      variables: { from: email },
-    });
+    getMessages({ variables: { from: email } });
     setOpenChat(email);
   };
+
   const onSend = () => {
     if (!newMessage) return;
     const charactersToRemove = /[@.]/g;

@@ -26,6 +26,12 @@ const Input = ({ onSend, onChange, newMessage }) => {
           <input
             value={newMessage}
             onChange={(e) => onChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                onSend();
+              }
+            }}
             type="text"
             className="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
           />

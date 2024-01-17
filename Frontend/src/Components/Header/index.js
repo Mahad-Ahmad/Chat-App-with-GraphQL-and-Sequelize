@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { userAtom } from "@/Store/Atoms/UserAtom";
 
 const Header = () => {
-  const router = useRouter()
+  const router = useRouter();
   const [user, setUser] = useRecoilState(userAtom);
 
   const logout = () => {
@@ -19,15 +19,11 @@ const Header = () => {
     <div>
       <header>
         <nav className="bg-gray-600 border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
-          <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
+          <div className="flex flex-wrap justify-between items-center mx-auto h-12 max-w-screen-xl">
             <a href="/" className="flex items-center">
-              <img
-                src="https://flowbite.com/docs/images/logo.svg"
-                className="mr-3 h-6 sm:h-9"
-                alt="Flowbite Logo"
-              />
+
               <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-                Chat App
+                Chat Bot
               </span>
             </a>
             <div

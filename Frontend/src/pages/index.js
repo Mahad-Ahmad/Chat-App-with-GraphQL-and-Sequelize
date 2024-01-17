@@ -13,6 +13,7 @@ import { SEND_MESSAGES } from "@/GraphqlApi/Mutations/SendMessage";
 import { toast } from "react-toastify";
 import { userAtom } from "@/Store/Atoms/UserAtom";
 import { NEW_MESSAGE_SUBSCRIPTION } from "@/GraphqlApi/Subscriptions/NewMessage";
+import Loader from "@/Components/Loader";
 
 export default function Home() {
   const user = useRecoilValue(userAtom);
@@ -154,7 +155,6 @@ export default function Home() {
     } else {
       setOpenChatHistory(openChat);
     }
-    console.log(newOffset, "newOffset", limit, "limit");
     getMessages({
       variables: { from: openChat, limit, offset: newOffset },
     });
@@ -162,8 +162,8 @@ export default function Home() {
 
   return (
     <>
-      {usersLoading || getMessagesLoading || sendingMessageloading ? (
-        <div>loading...</div>
+      {usersLoading ? (
+        <Loader />
       ) : (
         <Chat
           user={user}
@@ -177,7 +177,9 @@ export default function Home() {
           totalMessages={totalMessages}
           messgaeRefIndex={messgaeRefIndex}
           loadMoreMessages={loadMoreMessages}
+          getMessagesLoading={getMessagesLoading}
           messageNotification={messageNotification}
+          sendingMessageloading={sendingMessageloading}
         />
       )}
     </>

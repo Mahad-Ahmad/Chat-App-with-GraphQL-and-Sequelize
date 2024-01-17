@@ -24,6 +24,7 @@ export default function Home() {
   const [allMessages, setAllMessages] = useState([]);
   const [totalMessages, setTotalMessages] = useState("");
   const [openChatHistory, setOpenChatHistory] = useState("");
+  const [messgaeRefIndex, setMessgaeRefIndex] = useState("");
   const [messageNotification, setMessageNotification] = useState([]);
 
   const { loading: usersLoading } = useQuery(GET_USERS, {
@@ -45,10 +46,13 @@ export default function Home() {
   };
 
   const handleMessages = (data) => {
-    const { allMessages, count } = data.getMessages;
+    const { allMessages: tempAllMessages, count } = data.getMessages;
     setTotalMessages(count);
-    setAllMessages([...allMessages].reverse());
-    const updatedUsers = updateUsersWithLatestMessage(sendMessage);
+    setMessgaeRefIndex(allMessages.length ? tempAllMessages.length : "");
+    setAllMessages([...tempAllMessages, ...allMessages]);
+    const updatedUsers = updateUsersWithLatestMessage(
+      setAllMessages[setAllMessages.length - 1]
+    );
     setUsers(updatedUsers);
     const filterNotification = messageNotification.filter(
       (el) => el.to !== user.email && el.from !== openChat
@@ -70,7 +74,7 @@ export default function Home() {
     setNewMessage("");
   };
 
-  const [getMessages, { loading: messageLoading }] = useLazyQuery(
+  const [getMessages, { loading: getMessagesLoading }] = useLazyQuery(
     GET_MESSAGES,
     {
       fetchPolicy: "network-only",
@@ -123,9 +127,12 @@ export default function Home() {
   const onChatClick = (email) => {
     if (openChat && openChat === email) return;
     setNewMessage("");
+    setMessgaeRefIndex("");
     setAllMessages([]);
-    getMessages({ variables: { from: email, limit, offset } });
+    setOffset(0);
+    getMessages({ variables: { from: email, limit: 10, offset: 0 } });
     setOpenChat(email);
+    setOpenChatHistory("");
   };
 
   const onSend = () => {
@@ -138,21 +145,24 @@ export default function Home() {
   };
 
   const loadMoreMessages = () => {
+    let newOffset = offset + 10;
+    setOffset(newOffset);
     if (openChatHistory) {
-      if (openChat === openChatHistory) {
-        getMessages({
-          variables: { from: openChat, limit: limit + 10, offset: offset },
-        });
+      if (openChat !== openChatHistory) {
+        setOpenChatHistory(openChat);
       }
     } else {
       setOpenChatHistory(openChat);
-      getMessages({ variables: { from: openChat, limit: limit + 10, offset } });
     }
+    console.log(newOffset, "newOffset", limit, "limit");
+    getMessages({
+      variables: { from: openChat, limit, offset: newOffset },
+    });
   };
 
   return (
     <>
-      {messageLoading ? (
+      {usersLoading || getMessagesLoading || sendingMessageloading ? (
         <div>loading...</div>
       ) : (
         <Chat
@@ -165,6 +175,7 @@ export default function Home() {
           onChatClick={onChatClick}
           allMessages={allMessages}
           totalMessages={totalMessages}
+          messgaeRefIndex={messgaeRefIndex}
           loadMoreMessages={loadMoreMessages}
           messageNotification={messageNotification}
         />

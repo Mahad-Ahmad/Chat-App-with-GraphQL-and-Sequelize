@@ -13,6 +13,7 @@ const Chat = ({
   allMessages,
   onChatClick,
   totalMessages,
+  messgaeRefIndex,
   loadMoreMessages,
   messageNotification,
 }) => {
@@ -22,7 +23,8 @@ const Chat = ({
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [allMessages]);
+  }, [allMessages, messgaeRefIndex]);
+
   return (
     <div className="flex h-[90vh] antialiased text-gray-800">
       <div className="flex flex-row h-full w-full overflow-x-hidden">
@@ -73,7 +75,7 @@ const Chat = ({
           <div className="flex flex-col flex-auto h-full p-6">
             <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
               <div className="flex flex-col h-full overflow-x-auto mb-4">
-                {totalMessages > 10 && (
+                {totalMessages > 10 && allMessages.length !== totalMessages && (
                   <div
                     onClick={loadMoreMessages}
                     className="flex justify-center bg-gray-200 rounded-xl px-10 py-1 cursor-pointer text-gray-500 text-center"
@@ -87,12 +89,16 @@ const Chat = ({
                     return (
                       <div
                         ref={
-                          index === allMessages.length - 1
+                          (messgaeRefIndex && index === messgaeRefIndex) ||
+                          (!messgaeRefIndex && index === allMessages.length - 1)
                             ? lastMessageRef
                             : null
                         }
                         id={
-                          index === allMessages.length - 1 ? "lastMessage" : ""
+                          (messgaeRefIndex && index === messgaeRefIndex) ||
+                          (!messgaeRefIndex && index === allMessages.length - 1)
+                            ? "lastMessage"
+                            : ""
                         }
                         key={index}
                       >

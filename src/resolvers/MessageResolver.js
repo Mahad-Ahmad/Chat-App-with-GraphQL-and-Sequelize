@@ -28,7 +28,6 @@ const sendMessage = async ({ content, to }, user) => {
 };
 
 const getMessages = async (from, limit, offset, user) => {
-  console.log(limit, offset,'limit, offset');
   try {
     if (from == user.email) throw new Error("Can't use your own email");
 
@@ -52,7 +51,7 @@ const getMessages = async (from, limit, offset, user) => {
     });
 
     return {
-      allMessages: [...allMessages.rows],
+      allMessages: [...allMessages.rows].reverse(),
       count: allMessages.count,
     };
   } catch (err) {

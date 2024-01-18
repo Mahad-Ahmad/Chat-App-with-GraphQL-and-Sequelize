@@ -42,6 +42,9 @@ const ChatContent = ({
                 key={index}
               >
                 <Message
+                  reactions={
+                    message.reactions.length ? message.reactions[0].content:''
+                  }
                   imageUrl={otherUser ? otherUser.imageUrl : user?.imageUrl}
                   message={message.content}
                   direction={otherUser ? "left" : "right"}

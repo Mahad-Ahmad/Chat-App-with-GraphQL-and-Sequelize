@@ -1,7 +1,8 @@
 import React from "react";
 import UserImage from "./UserImage";
 
-const Message = ({ imageUrl, message, direction, name }) => {
+const Message = ({ imageUrl, message, direction, name, reactions }) => {
+  console.log(reactions);
   return (
     <div className="grid grid-cols-12 gap-y-2">
       {direction == "left" && (
@@ -9,6 +10,7 @@ const Message = ({ imageUrl, message, direction, name }) => {
           <div className="flex flex-row items-center">
             <UserImage imageUrl={imageUrl} name={name} />
             <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow  rounded-xl">
+              <div className="w-5 h-5 z-10 relative">{reactions}</div>
               <div>{message}</div>
             </div>
           </div>
@@ -18,6 +20,7 @@ const Message = ({ imageUrl, message, direction, name }) => {
         <div className="col-start-6 col-end-13 p-3 rounded-lg">
           <div className="flex items-center justify-start flex-row-reverse">
             <UserImage imageUrl={imageUrl} name={name} />
+              <div >{reactions}</div>
             <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
               <div>{message}</div>
             </div>

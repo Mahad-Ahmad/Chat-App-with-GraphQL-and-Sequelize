@@ -1,4 +1,5 @@
 import { Message, User, Reaction } from "../models";
+import { reactionsConstant } from "../Utils/constants";
 import { Op } from "sequelize";
 import { PubSub, withFilter } from "graphql-subscriptions";
 
@@ -45,6 +46,12 @@ const getMessages = async (from, limit, offset, user) => {
         from: { [Op.in]: userEmails },
         to: { [Op.in]: userEmails },
       },
+      include: [
+        {
+          model: Reaction,
+          as: "reactions",
+        },
+      ],
       order: [["createdAt", "DESC"]],
       offset,
       limit,
@@ -60,10 +67,8 @@ const getMessages = async (from, limit, offset, user) => {
 };
 
 const reactToMessage = async (uuid, content, user) => {
-  console.log(user);
-  const reactions = ["❤️", "😆", "😯", "😢", "😡", "👍", "👎"];
   try {
-    if (!reactions.includes(content)) {
+    if (!reactionsConstant.includes(content)) {
       throw new Error("invalid reaction");
     }
 
@@ -158,6 +163,8 @@ const MessageResolver = {
           return pubSub.asyncIterator("NEW_REACTION");
         },
         async ({ newReaction }, _, { user }) => {
+          // getMessage() is auto get the message associated with the reaction object
+          // same as if we want to get the uers we will call getUser
           const message = await newReaction.getMessage();
           if (message.from == user.email || message.to == user.email) {
             return true;

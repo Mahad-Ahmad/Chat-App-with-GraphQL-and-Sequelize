@@ -7,6 +7,7 @@ const Message = gql`
     to: String!
     from: String!
     createdAt: String!
+    reactions: [Reaction]
   }
 
   type MessageList {
@@ -17,8 +18,8 @@ const Message = gql`
   type Reaction {
     content: String!
     uuid: String!
-    Message: Message!
-    User: User!
+    message: Message!
+    user: User!
     createdAt: String!
   }
 

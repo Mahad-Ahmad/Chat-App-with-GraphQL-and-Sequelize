@@ -10,6 +10,10 @@ export const GET_MESSAGES = gql`
         to
         from
         createdAt
+        reactions {
+          uuid
+          content
+        }
       }
     }
   }

@@ -10,12 +10,9 @@ const ChatContent = ({
   loadMoreMessages,
   user,
   users,
-  getMessagesLoading,
-  sendingMessageloading,
   newMessage,
   onSend,
   onChange,
-  openChat,
 }) => (
   <div className="flex flex-col flex-auto h-full px-6 pb-6 pt-8">
     <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">

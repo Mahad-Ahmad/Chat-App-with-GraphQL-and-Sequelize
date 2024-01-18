@@ -14,16 +14,26 @@ const Message = gql`
     count: Int!
   }
 
+  type Reaction {
+    content: String!
+    uuid: String!
+    Message: Message!
+    User: User!
+    createdAt: String!
+  }
+
   type Query {
     getMessages(from: String!, offset: Int, limit: Int): MessageList!
   }
 
   type Mutation {
     sendMessage(content: String!, to: String!): Message!
+    reactToMessage(content: String!, uuid: String!): Reaction!
   }
-  
+
   type Subscription {
     newMessage: Message!
+    newReaction: Reaction!
   }
 `;
 

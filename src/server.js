@@ -26,7 +26,7 @@ const PORT = 4000;
   console.log("Database connected!!");
 
   const schema = makeExecutableSchema({
-    introspection: true,
+    // introspection: true,
     typeDefs,
     resolvers,
     // csrfPrevention: true,
@@ -52,7 +52,7 @@ const PORT = 4000;
 
   const server = new ApolloServer({
     schema,
-    introspection: true,
+    // introspection: true,
     plugins: [
       // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),

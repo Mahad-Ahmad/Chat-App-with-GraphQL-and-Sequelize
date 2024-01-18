@@ -2,8 +2,8 @@ const { gql } = require("apollo-server");
 
 const User = gql`
   type User {
-    name: String!
-    email: String
+    name: String
+    email: String!
     token: String
     imageUrl: String
     createdAt: String!
